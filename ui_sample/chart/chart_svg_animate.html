@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Sample</title>
+<style>
+    body {font-family:sans-serif;}
+    h2 {font-size:20px;}
+    .head-notes {margin:0 0 30px; background:#fde9e9; padding:10px; font-size:13px;}
+    .head-notes {background:#fde9e9;}
+    .head-notes dl, .head-notes ul {margin:0; padding:0;}
+    .head-notes dl dt {font-size:.96em; font-weight:bold; font-style:italic; color:#333;}
+    .head-notes dl + dl {margin-top:10px;}
+    .head-notes dl b {color:#eb5757;}
+    .head-notes code, .head-notes .comment {font-family:consolas, sans-serif; font-size:.9em;}
+    .head-notes code {padding:0 3px; background:#efefef; border-radius:3px; color:#eb5757;}
+    .head-notes .comment {font-style:italic; color:#999;}
+
+
+    /* Charts */
+    svg .path-progress {-webkit-transition:stroke-dashoffset 1s; transition:stroke-dashoffset 1s;}
+    
+    .donutchart {display:inline-block; position:relative; width:100px; height:100px; overflow:hidden;}
+    .donutchart .chart {position:relative; width:100%; height:100%;}
+    .donutchart .chart svg {width:100%; height:100%; -webkit-transform:rotate(-90deg); transform:rotate(-90deg);}
+    .donutchart .chart svg .path {fill:none; stroke:#eee}
+    .donutchart .chart svg .path-progress {fill:none; /* stroke:#6fcb0c; */}
+    .donutchart .text-val {position:absolute; top:0; right:0; bottom:0; left:0; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:bold; color:#999;}
+    .donutchart.round .chart svg .path-progress {stroke-linecap:round;}
+
+    .multiplechart {display:inline-block; position:relative; width:160px; height:160px; overflow:hidden;}
+    .multiplechart svg {width:100%; -webkit-transform:rotate(-180deg); transform:rotate(-180deg);}
+    .multiplechart svg .path {fill:none; stroke:#eee;}
+    .multiplechart svg .path-progress {fill:none; stroke-linecap:round;}
+
+    .meterchart {display:inline-block; position:relative; overflow:hidden;}
+    .meterchart svg .path-progress-hand {-webkit-transform:rotate(0); transform:rotate(0); -webkit-transform-origin:50% 47px; transform-origin:50% 47px; -webkit-transition:transform 1s; transition:-webkit-transform 1s; transition:transform 1s;}
+</style>
+</head>
+<body>
+    <div class="head-notes">
+        <dl>
+            <dt># Supported browsers :</dt>
+            <dd>
+                AOS >= 5.0<br>
+                iOS >= 8.0<br>
+                IE >= 10
+            </dd>
+        </dl>
+        <dl>
+            <dt># Browser Issues :</dt>
+            <dd><b>IE</b> 에서 SVG 내부 요소에 CSS transform & transition 사용 지원 안됨.<br>
+                - CSS transform 은 SVG의 transform 속성으로 대체. (e.g: <code>&lt;path transform="rotate(-90 15 15)"&gt;</code>)<br>
+                - transition 은 Chromium Edge(79) 부터 지원.
+            </dd>
+        </dl>
+        <dl>
+            <dt># stroke-dasharray, stroke-dashoffset 값 구하기 :</dt>
+            <dd>&lt;circle&gt; : circleElement.r.baseVal.value * 2 * Math.PI; <span class="comment">// 원의 반지름값 * 2 * 원주율(3.14159...)</span>
+                <!-- reference: https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Math/PI -->
+            </dd>
+            <dd>&lt;path&gt; : pathElement.getTotalLength()
+                <!-- reference: https://developer.mozilla.org/en-US/docs/Web/API/SVGGeometryElement/getTotalLength -->
+            </dd>
+        </dl>
+        <dl>
+            <dt># Last updated :</dt>
+            <dd>2021-04-08</dd>
+        </dl>
+    </div>
+
+
+    <!-- Donut Chart -->
+    <div class="donutchart" data-chart-value="8"><!-- data-chart-value="percentage" -->
+        <div class="chart" data-svg-radius="15" data-svg-stroke="4"></div>
+    </div>
+
+    <!-- Donut Chart - round -->
+    <div class="donutchart round" data-chart-value="16"><!-- data-chart-value="percentage" -->
+        <div class="chart" data-svg-radius="50" data-svg-stroke="11" data-svg-color="#ff9522"></div>
+    </div>
+
+    <hr />
+
+    <!-- Meter Chart - type1 -->
+    <div class="meterchart" data-chart-value="80"><!-- data-chart-value="percentage" -->
+        <svg width="200" height="100" viewBox="0 0 100 50">
+            <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#6bb708" />
+                    <stop offset="16.6%" stop-color="#6fcb0c" />
+                    <stop offset="33.2%" stop-color="#92e22b" />
+                    <stop offset="49.8%" stop-color="#ffc655" />
+                    <stop offset="66.4%" stop-color="#ffad4a" />
+                    <stop offset="100%" stop-color="#ff9522" />
+                </linearGradient>
+            </defs>
+            <g>
+                <g>
+                    <path d="M8.66,47a41.38,41.38,0,1,1,82.75,0" fill="none" stroke="#ddd" stroke-miterlimit="10" stroke-width="6" />
+                    <path d="M8.66,47a41.38,41.38,0,1,1,82.75,0" fill="none" stroke="#eee" stroke-miterlimit="10" stroke-width="5" />
+                    <path class="path-progress" d="M8.66,47a41.38,41.38,0,1,1,82.75,0" fill="none" stroke="url(#gradient)" stroke-miterlimit="10" stroke-width="6" stroke-dasharray="131.2869415283203" stroke-dashoffset="131.2869415283203" />
+                </g>
+                <g class="path-progress-hand" transform="rotate(0 50 47)"><!-- transform 속성 : for IE -->
+                    <rect x="0" y="0" width="100%" height="100%" fill="rgba(0,0,0,.1)" visibility="hidden" /><!-- rotate 영역 사이즈 때문에 추가 (viewBox 와 동일한 사이즈) : CSS Transform 사용할 경우 모바일 하위버전에서 path rotate 정상적으로 작동 안되는 현상 때문에 추가. (확인된 브라우저는 iOS 10.0.2, AOS 5.0-Samsung Browser v2.1) -->
+                    <line stroke="#e04644" stroke-width="1" x1="3" y1="47" x2="12" y2="47" />
+                </g>
+            </g>
+        </svg>
+    </div>
+
+    <!-- Meter Chart - type2 -->
+    <div class="meterchart" data-chart-value="100"><!-- data-chart-value="percentage" -->
+        <svg width="200" height="100" viewBox="0 0 100 50">
+            <g>
+                <g>
+                    <path d="M8.66,50a41.38,41.38,0,1,1,82.75,0" fill="none" stroke="#fde47f" stroke-miterlimit="10" stroke-width="6" stroke-dasharray="131.2869415283203, 131.2869415283203" stroke-dashoffset="0" />
+                    <path d="M8.66,50a41.38,41.38,0,1,1,82.75,0" fill="none" stroke="#7ccce5" stroke-miterlimit="10" stroke-width="6" stroke-dasharray="87.52462768554687, 131.2869415283203" stroke-dashoffset="-43.76231384277343" />
+                    <path d="M8.66,50a41.38,41.38,0,1,1,82.75,0" fill="none" stroke="#e04644" stroke-miterlimit="10" stroke-width="6" stroke-dasharray="43.76231384277343, 131.2869415283203" stroke-dashoffset="-87.52462768554687" />
+                </g>
+                <g>
+                    <path class="path-progress" d="M3,50a47,47,0,0,1,94,0" fill="none" stroke="rgba(0,0,0,.2)" stroke-miterlimit="10" stroke-width="1" stroke-dasharray="147.64317321777344" stroke-dashoffset="147.64317321777344" />
+                </g>
+            </g>
+        </svg>
+    </div>
+
+    <hr />
+
+    <!-- Multiple Chart -->
+    <div class="multiplechart" data-chart-value="58, 86"><!-- data-chart-value="percentage" : level 순으로 쉼표로 구분 (1-level 퍼센트값, 2-level 퍼센트값) -->
+        <svg viewBox="0 0 100 100">
+            <g>
+                <circle cx="50" cy="50" r="47" stroke-width="6" class="path" />
+                <circle cx="50" cy="50" r="47" stroke-width="6" class="path-progress" stroke="#ff9522" stroke-dasharray="295.3097094374406" stroke-dashoffset="295.3097094374406" />
+            </g>
+            <g>
+                <circle cx="50" cy="50" r="38" stroke-width="6" class="path" />
+                <circle cx="50" cy="50" r="38" stroke-width="6" class="path-progress" stroke="#6fcb0c" stroke-dasharray="238.76104167282426" stroke-dashoffset="238.76104167282426" />
+            </g>
+        </svg>
+    </div>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.5.2/velocity.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            'use strict';
+
+            // Donut chart
+            [].forEach.call(document.querySelectorAll('.donutchart'), function(donutcharts) {
+                var drawChartEl = donutcharts.querySelector('.chart'),
+                    svg_radius = drawChartEl.getAttribute('data-svg-radius') || 0, // radius 원의 반지름값
+                    svg_stroke = drawChartEl.getAttribute('data-svg-stroke') || 0, // stroke-width 값
+                    svg_color = drawChartEl.getAttribute('data-svg-color') || '#6fcb0c', // stroke color 값
+                    svg_r = svg_radius - (svg_stroke / 2), // stroke-width 계산된 실제 r 값
+                    svg_path_len = svg_r * 2 * Math.PI, // 원주값 = stroke-dasharray 값
+                    perVal = donutcharts.getAttribute('data-chart-value'),
+                    offset = svg_path_len - (perVal / 100 * svg_path_len);
+                    
+                drawChartEl.innerHTML =
+                    '<svg viewBox="0 0 '+(svg_radius*2)+' '+(svg_radius*2)+'">' +
+                        '<g>' +
+                            '<circle cx="'+svg_radius+'" cy="'+svg_radius+'" r="'+svg_r+'" stroke-width="'+svg_stroke+'" class="path" />' +
+                            '<circle cx="'+svg_radius+'" cy="'+svg_radius+'" r="'+svg_r+'" stroke-width="'+svg_stroke+'" stroke="'+svg_color+'" class="path-progress" stroke-linecap="butt" stroke-dasharray="'+svg_path_len+'" stroke-dashoffset="'+svg_path_len+'" />' +
+                        '</g>' +
+                    '</svg>' +
+                    '<div class="text-val">'+perVal+'%</div>';
+                        
+                var pathEl = drawChartEl.querySelector('.path-progress'),
+                    outputEl = donutcharts.querySelector('.text-val');
+                
+                setTimeout(function() {
+                    pathEl.style.strokeDashoffset = offset;
+                    outputEl.textContent = perVal+'%';
+
+                    if (perVal !== null) {
+                        Velocity(outputEl, {
+                            tween: [perVal, 0]
+                        }, {
+                            duration: 1000,
+                            easing: 'ease-out',
+                            progress: function (el, complete, remaining, start, tweenValue) {
+                                el[0].textContent = Math.round(tweenValue)+'%';
+                            }
+                        });
+                    }
+                }, 0);
+                
+            });
+
+
+            // Meter Chart
+            [].forEach.call(document.querySelectorAll('.meterchart'), function(metercharts) {
+                var path1El = metercharts.querySelector('.path-progress'),
+                    perVal = metercharts.getAttribute('data-chart-value'),
+                    path1_len = path1El.getAttribute('stroke-dashoffset'),
+                    offset1 = path1_len - (perVal / 100 * path1_len);
+                
+                console.log(path1_len);
+
+                setTimeout(function() {
+                    path1El.style.strokeDashoffset = offset1;
+                }, 0);
+                
+                // progress hand
+                var path2El = metercharts.querySelector('.path-progress-hand');
+                if (path2El !== null) {
+                    var offset2 = perVal / 100 * 180;
+
+                    setTimeout(function() {
+                        path2El.setAttribute('transform','rotate('+offset2+' 50 47)'); // for IE
+                        path2El.style.webkitTransform = 'rotate('+offset2+'deg)';
+                        path2El.style.transform = 'rotate('+offset2+'deg)';
+                    }, 0);
+                }
+            });
+
+
+            // Multiple Chart
+            [].forEach.call(document.querySelectorAll('.multiplechart'), function(multiplecharts) {
+                var pathEl = multiplecharts.querySelectorAll('.path-progress'),
+                    perVal = multiplecharts.getAttribute('data-chart-value');
+                
+                var perValArr = perVal.replace(/(\s*)/g, '').split(','); // 문자열의 모든 공백 제거 후 배열로 변환
+                for (var i in perValArr) {
+                    var path_len = pathEl[i].getAttribute('stroke-dashoffset');
+          
+                    var animate = function(x) { // for문 내에 콜백함수로 인한 클로저
+                      var offset = path_len - (perValArr[i] / 100 * path_len);
+                      
+                      setTimeout(function() {
+                        pathEl[x].style.strokeDashoffset = offset;
+                      }, i * 0);
+                    }
+                    animate(i);
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
