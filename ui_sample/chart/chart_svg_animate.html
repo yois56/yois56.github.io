@@ -36,7 +36,7 @@
     .multiplechart svg .path-progress {fill:none; stroke-linecap:round;}
 
     .meterchart {display:inline-block; position:relative; overflow:hidden;}
-    .meterchart svg .path-progress-hand {-webkit-transform:rotate3d(0,0,1,0deg); transform:rotate3d(0,0,1,0deg); -webkit-transform-origin:50% 47px; transform-origin:50% 47px; -webkit-transition:transform 1s; transition:-webkit-transform 1s; transition:transform 1s;}
+    .meterchart svg .path-progress-hand {-webkit-transform:rotate(0); transform:rotate(0); -webkit-transform-origin:50% 47px; transform-origin:50% 47px; -webkit-transition:transform 1s; transition:-webkit-transform 1s; transition:transform 1s;}
 </style>
 </head>
 <body>
@@ -212,8 +212,8 @@
 
                     setTimeout(function() {
                         path2El.setAttribute('transform','rotate('+offset2+' 50 47)'); // for IE
-                        path2El.style.webkitTransform = 'rotate3d(0,0,1,'+offset2+'deg)';
-                        path2El.style.transform = 'rotate3d(0,0,1,'+offset2+'deg)';
+                        path2El.style.webkitTransform = 'rotate('+offset2+'deg)';
+                        path2El.style.transform = 'rotate('+offset2+'deg)';
                     }, 0);
                 }
             });
