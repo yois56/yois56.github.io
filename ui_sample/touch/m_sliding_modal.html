@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Sample</title>
+<style>
+    body {margin:0; padding:0; font-family:sans-serif;}
+    #wrap {padding:8px;}
+    .head-notes {margin:0 0 30px; background:#fde9e9; padding:10px; font-size:13px;}
+    .head-notes {background:#fde9e9;}
+    .head-notes dl, .head-notes ul {margin:0; padding:0;}
+    .head-notes dl dt {font-size:.96em; font-weight:bold; font-style:italic; color:#333;}
+    .head-notes dl + dl {margin-top:10px;}
+    .head-notes dl b {color:#eb5757;}
+    .head-notes code, .head-notes .comment {font-family:consolas, sans-serif; font-size:.9em;}
+    .head-notes code {padding:0 3px; background:#efefef; border-radius:3px; color:#eb5757;}
+    .head-notes .comment {font-style:italic; color:#999;}
+
+
+    /* modal */
+    html.scrlock, html.scrlock body {overflow:hidden;}
+    html.scrlock #wrap {position:fixed; left:0; right:0;}
+    .modal {position:fixed; z-index:9999; top:0; right:0; bottom:0; left:0; touch-action:none;} /* touch-action:none : prevent pull-down-to-refresh on AOS */
+    .modal .backdrop {position:fixed; z-index:-1; top:0; right:0; bottom:0; left:0; background:rgba(0,0,0,.7); opacity:0; -webkit-transition:opacity .2s; transition:opacity .2s;}
+    .modal.show .backdrop {opacity:1;}
+    .modal.show .slid-popuplay {-webkit-transform:translate3d(0,0,0); transform:translate3d(0,0,0); -webkit-transition-duration:.4s; transition-duration:.4s;}
+    .modal[aria-hidden='true'] {display:none;}
+
+    .slid-popuplay {position:absolute; bottom:0; left:0; width:100%; height:60%; background:#fff; border-radius:16px 16px 0 0; -webkit-transform:translate3d(0,100%,0); transform:translate3d(0,100%,0); -webkit-transition:-webkit-transform .2s cubic-bezier(0.33, 1, 0.68, 1); transition:transform .2s cubic-bezier(0.33, 1, 0.68, 1); will-change:transform;}
+    .slid-popuplay >.body {padding:32px 16px 16px;}
+    .slid-popuplay >.close {position:absolute; z-index:1; top:0; left:0; width:100%; height:16px; background:none; border:none; color:transparent; outline:0; -webkit-user-select:none; user-select:none;}
+    .slid-popuplay >.close:before {content:''; position:absolute; left:calc(50% - 16px); top:calc(50% - 1.5px); width:32px; height:3px; border-radius:1.5px; background:#ddd;}
+</style>
+</head>
+<body>
+    <div id="wrap">
+        <div class="head-notes">
+            <dl>
+                <dt># Supported browsers :</dt>
+                <dd>
+                    AOS >= 5.0<br>
+                    iOS >= 8.0
+                </dd>
+            </dl>
+            <dl>
+                <dt># Last updated :</dt>
+                <dd>2021-04-16</dd>
+            </dl>
+        </div>
+
+        <button type="button" onclick="uiModalOpen('#slidModal')">Click me!</button>
+    </div>
+
+    <!-- Sliding Modal -->
+    <div id="slidModal" class="modal" aria-hidden="true"><!-- 팝업 Show : class=" show" 추가, aria-hidden="false" -->
+        <div class="slid-popuplay">
+            <div class="body">
+                @Content
+            </div>
+            <button type="button" class="close"><span>Close</span></button>
+        </div>
+        <div class="backdrop"></div>
+    </div>
+    <!-- //Sliding Modal -->
+    
+
+    <script>
+        'use strict';
+
+        // matches polyfill
+        if (!Element.prototype.matches) {
+            Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+        }
+
+        // modal open
+        var isModalShow = function(target) { return target.classList.contains('show') };
+
+        function uiModalOpen(el) {
+            var $modal = document.querySelector(el),
+                $slidey = $modal.querySelector('.slid-popuplay');
+            
+            // scroll-lock
+            if (document.querySelector('#wrap')) {
+                var scrTop = window.pageYOffset;
+                document.documentElement.classList.add('scrlock');
+                document.querySelector('#wrap').style.top = -scrTop+'px';
+            }
+            
+            // show layer
+            $modal.setAttribute('aria-hidden','false');
+            $modal.offsetHeight; // forced reflow for transition
+            $modal.classList.add('show');
+
+            // bind close action
+            $modal.addEventListener('click', function(e) {
+                if (isModalShow(this) && e.target.matches('.backdrop, .close, .close *')) {
+                    e.preventDefault();
+                    uiModalClose(el);
+                }
+            });
+
+            // touch action
+            var $touchCloseBtn = $modal.querySelector('.close'),
+                touchStartedY, touchMovedY;
+
+            $touchCloseBtn.addEventListener('touchstart', function(e) {
+                touchStartedY = e.touches[0].clientY;
+            });
+            $touchCloseBtn.addEventListener('touchmove', function(e) {
+                if (touchStartedY) {
+                    e.preventDefault();
+
+                    if (touchStartedY < e.changedTouches[0].clientY) {
+                        var moveY = (e.changedTouches[0].clientY - touchStartedY).toFixed(3),
+                            tween = (moveY / (window.innerHeight-touchStartedY)).toFixed(3);
+                        
+                        $slidey.style.webkitTransform = 'translate3d(0, '+moveY+'px, 0)';
+                        $slidey.style.transform = 'translate3d(0, '+moveY+'px, 0)';
+                        $slidey.style.webkitTransition = 'initial';
+                        $slidey.style.transition = 'initial';
+                        $modal.querySelector('.backdrop').style.opacity = (1-tween);
+                    }
+                    touchMovedY = e.changedTouches[0].clientY;
+                }
+            });
+            $touchCloseBtn.addEventListener('touchend', function(e) {
+                if (touchMovedY) {
+                    var centerY = $slidey.offsetTop + ($slidey.offsetHeight/2);
+
+                    if (isModalShow($modal) && centerY < e.changedTouches[0].clientY) {
+                        uiModalClose(el);
+                        touchStartedY = undefined;
+                    }
+                    $slidey.style.webkitTransform = '';
+                    $slidey.style.transform = '';
+                    $slidey.style.webkitTransition = '';
+                    $slidey.style.transition = '';
+                    $modal.querySelector('.backdrop').style.opacity = '';
+                }
+            });
+        }
+
+        // modal close
+        function uiModalClose(el) {
+            var $modal = document.querySelector(el);
+
+            // scroll-unlock
+            if (document.querySelector('#wrap')) {
+                var beforeScrTop = parseInt(document.querySelector('#wrap').style.top);
+                document.documentElement.classList.remove('scrlock');
+                document.querySelector('#wrap').style.top = '';
+                window.scrollTo(0, Math.abs(beforeScrTop));
+            }
+            
+            // hide layer
+            $modal.classList.remove('show');
+            $modal.addEventListener('transitionend', function(e) {
+                if (!isModalShow(this) && this.getAttribute('aria-hidden') === 'false') {
+                    $modal.setAttribute('aria-hidden','true');
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
